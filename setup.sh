@@ -116,55 +116,6 @@ if [ -z "$UPDATE_MODE" ] && grep -q '^[^#]*source.*pwndbg/gdbinit.py' ~/.gdbinit
     fi
 fi
 
-if linux; then
-    distro=$(grep "^ID=" /etc/os-release | cut -d'=' -f2 | sed -e 's/"//g')
-
-    case $distro in
-        "ubuntu")
-            install_apt
-            ;;
-        "fedora")
-            install_dnf
-            ;;
-        "clear-linux-os")
-            install_swupd
-            ;;
-        "opensuse-leap" | "opensuse-tumbleweed")
-            install_zypper
-            ;;
-        "arch" | "archarm" | "endeavouros" | "manjaro" | "garuda" | "cachyos")
-            install_pacman
-            echo "Logging off and in or conducting a power cycle is required to get debuginfod to work."
-            echo "Alternatively you can manually set the environment variable: DEBUGINFOD_URLS=https://debuginfod.archlinux.org"
-            ;;
-        "void")
-            install_xbps
-            ;;
-        "gentoo")
-            install_emerge
-            if ! hash sudo 2> /dev/null && whoami | grep root; then
-                sudo() {
-                    ${*}
-                }
-            fi
-            ;;
-        "freebsd")
-            install_freebsd
-            ;;
-        *) # we can add more install command for each distros.
-            echo "\"$distro\" is not supported distro. Will search for 'apt' or 'dnf' package managers."
-            if hash apt; then
-                install_apt
-            elif hash dnf; then
-                install_dnf
-            else
-                echo "\"$distro\" is not supported and your distro don't have a package manager that we support currently."
-                exit
-            fi
-            ;;
-    esac
-fi
-
 if ! hash gdb; then
     echo "Could not find gdb in $PATH"
     exit
